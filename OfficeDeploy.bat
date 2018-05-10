@@ -231,8 +231,6 @@ echo !date! !time!- JUMP SUCCESSFUL >>%log%
 title  Microsoft Office installer %1 %3
 :: ------------------
 
-:: Avaliable files: A2016, DellBios, DCU, EMET, JunkReporter, O2007PP (Office2007ProPlus), O2013PPSP1x86 (Office2013ProPlusSP1x86), O2016Sx86 (Office2016Standardx86), Ou2016Sx86 (Outlook2016Standardx86), S4B2016B, UO2007, UO2016, VisioViewer2016
-
 :: Office 2016 Standard - subflags
 if "%InstallType%"=="1" (
 	echo !date! !time!- Office 2016 variables loading >>%log%
