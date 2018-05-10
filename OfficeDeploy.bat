@@ -7,11 +7,6 @@ REM start file - buffer line
 :: Supports retreiving files interally via UNC and publicly via encrypted packages hosted on HTTPS
 :: Works both interactively and via command line arguments for deployment via SCCM
 :: Gradually built over the period of two years for a very specific combination of requirements in a real enterprise network with roaming users, both with and without admin.
-:: 
-
-:: [Downloads/caches/loads directly] installation files for Office suites, then installs them
-:: Operates over HTTPS or UNC
-:: Also performs cleanup and maintenance tasks to increase system performance
 
 SETLOCAL ENABLEDELAYEDEXPANSION
 @echo on
