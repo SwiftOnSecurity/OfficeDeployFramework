@@ -21,9 +21,11 @@ set "debug="
 title Microsoft Office installer %1 %3
 
 set Version=65
-set ScriptDate=2018-03-20
+set ScriptDate=2018-03-26
 
-
+:: [Downloads/caches/loads directly] installation files for Office suites, then installs them
+:: Operates over HTTPS or UNC
+:: Also performs cleanup and maintenance tasks to increase system performance
 
 :: Sanity check to prevent clearing root of drive
 if not defined Temp exit
@@ -172,13 +174,13 @@ if not defined InstallType (
 	echo =====InstallType=====
 	echo   1 = Office 2016 Standard x86
 	echo   2 = Outlook 2016 x86
-	echo   3 = Office 2007 + Outlook 2016 x86
+	echo   3 = Office 2007 + Outlook 2016 x86 + Full purge
 	echo   4 = Office 2013 Pro Plus x86
-	echo   5 = Access 2007 + Office 2016 Standard x86
+	echo   5 = Office 2007 + Outlook 2016 + Access 2016 + Full purge
 	echo   6 = Hollow install
-	echo   7 = Office 2007 + Outlook 2016 + preserve Access 2007
+	echo   7 = Office 2007 + Outlook 2016 + Access 2016 + Full purge
 	echo   8 = Retrofit Access 2016
-	echo   9 = Office 2016 + Access 2016
+	echo   9 = Office 2016 + Access 2016 + Full purge
 	echo.
 		set /p InstallType=Enter your selection:
 	)
@@ -292,16 +294,16 @@ if "%InstallType%"=="2" (
 	set "install-Visio2016Viewer=1"
 	)
 
-:: Office 2007 + Outlook 2016 - subflags
+:: Office 2007 + Outlook 2016 x86 + Full purge - subflags
 if "%InstallType%"=="3" (
-	echo !date! !time!- Office 2007 + Outlook 2016 variables loading >>%log%
+	echo !date! !time!- Office 2007 + Outlook 2016 x86 + Full purge variables loading >>%log%
 	set "Exclude=Access2016Runtime.7z Office2013ProPlusx86.7z UpdateOffice2013.7z Office2016Standardx86.7z NvidiaMobileDriver.7z"
-	set "EDITIONS=STANDARD,BASIC,PRO,AccessRuntime,Proof,HomeAndStudent,Enterprise,ProfessionalHybrid,Personal,Ultimate,CLICK2RUN,SmallBusiness,Groove,Outlook,CLIENTSUITES,PIA /Quiet /Log %LOCALDIR%"
-	set "wipe-2007=0"
-	set "wipe-2010=0"
-	set "wipe-2013=0"
-	set "wipe-2016=0"
-	set "wipe-c2r=0"
+	set "EDITIONS=ALL /Quiet /Log %LOCALDIR%"
+	set "wipe-2007=1"
+	set "wipe-2010=1"
+	set "wipe-2013=1"
+	set "wipe-2016=1"
+	set "wipe-c2r=1"
 	set "clear-2007exe=0"
 	set "clear-ost=1"
 	set "install-Office2007=1"
@@ -340,25 +342,25 @@ if "%InstallType%"=="4" (
 	set "install-Visio2016Viewer=1"
 	)
 
-:: Access 2007 + Office 2016 Standard - subflags
+:: Office 2007 + Outlook 2016 + Access 2016 + Full purge
 if "%InstallType%"=="5" (
-	echo !date! !time!- Access 2007 + Office 2016 variables loading >>%log%
+	echo !date! !time!- Office 2007 + Outlook 2016 + Access 2016 variables loading >>%log%
 	set "Exclude=Access2016Runtime.7z Office2013ProPlusx86.7z UpdateOffice2013.7z Office2016Standardx86.7z Outlook2016x86.7z NvidiaMobileDriver.7z"
 	set "EDITIONS=STANDARD,BASIC,PRO,AccessRuntime,Proof,HomeAndStudent,Enterprise,ProfessionalHybrid,Personal,Ultimate,CLICK2RUN,SmallBusiness,Groove,Outlook,CLIENTSUITES,PIA /Quiet /Log %LOCALDIR%"
 	set "wipe-2007=1"
-	set "wipe-2010=0"
-	set "wipe-2013=0"
+	set "wipe-2010=1"
+	set "wipe-2013=1"
 	set "wipe-2016=1"
 	set "wipe-c2r=1"
-	set "clear-2007exe=1"
-	set "clear-ost=1"
-	set "install-Office2007=0"
-	set "install-Access2007=1"
-	set "skip-patch2007=1"
+	set "clear-2007exe=0"
+	set "clear-ost=0"
+	set "install-Office2007=1"
+	set "install-Access2007=0"
+	set "skip-patch2007=0"
 	set "install-Office2013PP=0"
-	set "install-Office2016Std=1"
-	set "install-Outlook2016=0"
-	set "install-Access2016=0"
+	set "install-Office2016Std=0"
+	set "install-Outlook2016=1"
+	set "install-Access2016=1"
 	set "install-Access2016Runtime=0"
 	set "install-SkypeForBusiness2016Basic=1"
 	set "install-Visio2016Viewer=1"
@@ -388,25 +390,26 @@ if "%InstallType%"=="6" (
 	set "install-Visio2016Viewer=1"
 	)
 	
-:: Office 2007 + Outlook 2016 (preserve Access 2007) - subflags
+:: Office 2007 + Outlook 2016 + Access 2016 + Full purge - subflags
 if "%InstallType%"=="7" (
-	echo !date! !time!- Office 2007 + Outlook 2016 + preserve Access 2007 variables loading >>%log%
-	set "Exclude=Access2016Runtime.7z Office2013ProPlusx86.7z UpdateOffice2013.7z Office2016Standardx86.7z NvidiaMobileDriver.7z"
-	set "EDITIONS=STANDARD,BASIC,PRO,AccessRuntime,Proof,HomeAndStudent,Enterprise,ProfessionalHybrid,Personal,Ultimate,CLICK2RUN,SmallBusiness,Groove,Outlook,CLIENTSUITES,PIA /Quiet /Log %LOCALDIR%"
-	set "wipe-2007=0"
-	set "wipe-2010=0"
-	set "wipe-2013=0"
-	set "wipe-2016=0"
-	set "wipe-c2r=0"
-	set "clear-2007exe=0"
-	set "clear-ost=1"
+	echo !date! !time!- Office 2007 + Outlook 2016 + Access 2016 + Full purge >>%log%
+	set "Exclude=A2016.7z O2013PPSP1x86.7z UO2013.7z O2016Sx86.7z NVMOBILE.7z"
+	set "EDITIONS=ALL /Quiet /Log %LOCALDIR%"
+	set "wipe-2007=1"
+	set "wipe-2010=1"
+	set "wipe-2013=1"
+	set "wipe-2016=1"
+	set "wipe-c2r=1"
+	set "clear-2007exe=1"
+	set "clear-ost=0"
 	set "install-Office2007=1"
 	set "install-Access2007=0"
 	set "skip-patch2007=0"
 	set "install-Office2013PP=0"
 	set "install-Office2016Std=0"
 	set "install-Outlook2016=1"
-	set "install-Access2016=0"
+	set "install-Access2016=1"
+	set "skip-patch2016=0"
 	set "install-Access2016Runtime=0"
 	set "install-SkypeForBusiness2016Basic=1"
 	set "install-Visio2016Viewer=1"
@@ -431,21 +434,23 @@ if "%InstallType%"=="8" (
 	set "install-Office2016Std=0"
 	set "install-Outlook2016=0"
 	set "install-Access2016=1"
+	set "skip-patch2016=1"
 	set "skip-aux=1"
 	set "install-Access2016Runtime=0"
 	set "install-SkypeForBusiness2016Basic=0"
 	set "install-Visio2016Viewer=0"
+	del "%LocalDir%\Packages\*.*" /f /s /q >>%logclean%
 	)
 
-:: Office 2016 + Access 2016
+:: Office 2016 + Access 2016 + Full purge
 if "%InstallType%"=="9" (
-	echo !date! !time!- Office 2016 x86 and Access 2016 x86 variables loading >>%log%
+	echo !date! !time!- Office 2016 + Access 2016 + Full Purge variables loading >>%log%
 	set "Exclude=Access2016Runtime.7z Office2013ProPlusx86.7z UpdateOffice2013.7z Office2016Standardx86.7z NvidiaMobileDriver.7z"
-	set "EDITIONS=STANDARD,BASIC,PRO,AccessRuntime,Proof,HomeAndStudent,Enterprise,ProfessionalHybrid,Personal,Ultimate,CLICK2RUN,SmallBusiness,Groove,Outlook,EXPDFXPS,ProPlus,VISVIEW,ACCESS,ACCESSRT,AccessRuntime /Quiet /Log %LOCALDIR%"
+	set "EDITIONS=ALL /Quiet /Log %LOCALDIR%"
 	set "wipe-2007=1"
 	set "wipe-2010=1"
 	set "wipe-2013=1"
-	set "wipe-2016=0"
+	set "wipe-2016=1"
 	set "wipe-c2r=1"
 	set "clear-2007exe=1"
 	set "clear-ost=0"
@@ -499,10 +504,14 @@ type "%LocalDir%\model.txt" | FIND "E6420"
 :: ------------------
 
 :CLEAN-BEGIN
-if "%skip-aux%"=="1" goto CLEAN-END
+
+:: Close Office
+FOR %%g IN (outlook,lync,ucmapi,msosync,msouc,msoev,msotd,communicator,searchfilterhost,searchindexer,officeclicktorun,lynchtmlconv,iastoricon,iastordatasvc,iastora,iastorv,ocpubmgr) DO (taskkill /IM %%g.exe /T /F >>%log%)
 
 :: Re-register MSIEXEC, in case it's corrupt
 start "" /b /wait "msiexec.exe" /regserver
+
+if "%skip-aux%"=="1" goto CLEAN-END
 
 :: ------------------
 
@@ -516,9 +525,6 @@ start "" /b /wait "msiexec.exe" /regserver
 start "" /b /wait "%LocalDir%\util\delprof2.exe" /d:45 /u >>%logclean%
 
 :: ------------------
-
-:: Close Office
-FOR %%g IN (outlook,lync,ucmapi,msosync,msouc,msoev,msotd,communicator,searchfilterhost,searchindexer,officeclicktorun,lynchtmlconv,iastoricon,iastordatasvc,iastora,iastorv,ocpubmgr) DO (taskkill /IM %%g.exe /T /F >>%log%)
 
 :: Clear OST
 if "%clear-ost%"=="1" (
@@ -802,7 +808,7 @@ cd "%LOCALDIR%
 	echo !date! !time!- Closing programs >>%log%
 
 :: Close Office
-FOR %%g IN (winword,outlook,powerpnt,mspub,msaccess,excel,lync,ucmapi,msosync,msouc,msoev,msotd,vpreview,groove,onenote,onenotem,firefox,chrome,communicator,makecab,searchfilterhost,searchindexer,officeclicktorun,lynchtmlconv,iexplore,dropbox,iastoricon,iastordatasvc,iastora,iastorv,sfdcmsol,ocpubmgr,skype) DO (taskkill /IM %%g.exe /T /F >>%log%)
+FOR %%g IN (winword,outlook,powerpnt,mspub,msaccess,excel,lync,ucmapi,msosync,msouc,msoev,msotd,vpreview,groove,onenote,onenotem,firefox,chrome,communicator,makecab,searchfilterhost,searchindexer,faxctrl,officeclicktorun,lynchtmlconv,iexplore,dropbox,iastoricon,iastordatasvc,iastora,iastorv,sfdcmsol,ocpubmgr,skype) DO (taskkill /IM %%g.exe /T /F >>%log%)
 
 :: ------------------
 
@@ -874,13 +880,13 @@ if exist "C:\Program Files (x86)\Common Files\Microsoft Shared\ClickToRun\Office
 if exist "C:\Program Files\Common Files\Microsoft Shared\ClickToRun\OfficeClickToRun.exe" start "" /b /wait "C:\Program Files\Common Files\Microsoft Shared\ClickToRun\OfficeClickToRun.exe" scenario=install scenariosubtype=ARP sourcetype=None productstoremove=SkypeforBusinessEntryRetail.16_en-us_x-none culture=en-us version.16=16.0 DisplayLevel=false
 
 :: Remove Office C2R Extensibility
-start "" /b /wait "MsiExec.exe" /X{90160000-008C-0000-0000-0000000FF1CE} /passive /norestart
-start "" /b /wait "MsiExec.exe" /X{90160000-008F-0000-1000-0000000FF1CE} /passive /norestart
-start "" /b /wait "MsiExec.exe" /X{90160000-008C-0409-0000-0000000FF1CE} /passive /norestart
-start "" /b /wait "MsiExec.exe" /X{90160000-00DD-0000-1000-0000000FF1CE} /passive /norestart
+start "" /b /wait "MsiExec.exe" /X{90160000-008C-0000-0000-0000000FF1CE} /qn /norestart
+start "" /b /wait "MsiExec.exe" /X{90160000-008F-0000-1000-0000000FF1CE} /qn /norestart
+start "" /b /wait "MsiExec.exe" /X{90160000-008C-0409-0000-0000000FF1CE} /qn /norestart
+start "" /b /wait "MsiExec.exe" /X{90160000-00DD-0000-1000-0000000FF1CE} /qn /norestart
 
 :: Remove Telemetery
-start "" /b /wait "MsiExec.exe" /X{90160000-0132-0409-1000-0000000FF1CE} /passive /norestart
+start "" /b /wait "MsiExec.exe" /X{90160000-0132-0409-1000-0000000FF1CE} /qn /norestart
 
 :: Force-remove
 WMIC product where "Name like '%%click-to-run%%'" call uninstall /nointeractive
@@ -892,7 +898,7 @@ WMIC product where "Name like '%%click-to-run%%'" call uninstall /nointeractive
 
 :: Uninstall Salesforce for Outlook
 taskkill /im sfdcmsol.exe /f >>%log%
-FOR %%g IN ({41feb4a2-7bd2-4d2a-a260-8e8c0e78850c},{af65dc73-94a0-4e85-8ac2-dba52cad1091},{2f4f88fa-c802-4bb6-8e12-9e8313625475},{115EDFAD-1AFB-46A6-9252-43FBB8186D5A},{80EBD79F-5DE4-4189-8E0D-415C750283BE},{1214FA70-2308-4C8A-92B2-D658BA181770},{3EAE8150-DECE-4D3E-A650-2FDEB6AC06A5},{508C3727-3C5E-403D-A69D-FD58A4759FD8},{ABFAAF4C-37B3-45C0-A48F-41560AC61B16},{8842998B-BEE6-4442-9AC7-827BB108C9CE},{1861F90F-7187-469B-BC93-3F947F09E089},{5A0271E2-384E-4386-B14A-09C900D39C9B},{3D7432D9-F9E6-4A94-AF65-079743221EC5},{502C11EE-AC93-47C1-8819-36345B2F1911},{3B037825-A72D-4B41-BA9F-BC8EDC9254FA},{9EF6B750-497B-4586-A7DF-BDE2CBADB900},{3873EBC6-BD2F-4564-A4FE-CD52643B5379},{D97A761B-27EA-4665-94F2-4EFCA4427728},{B1E177D9-E3C9-48E0-9518-EB21FF60297C},{6ACA47BD-D211-45CC-9FF4-70996A7D36E6},{15D99A8D-399F-4647-B2A6-29BE98FCBABA},{F33CCB78-FC9C-482C-8F1F-AF6F8D175337},{F2CED60E-2E22-4880-8D21-3AAE1B0DE6CD},{79CA5983-8BAC-4F17-A8E8-1734B40BC979},{2F055533-E701-4240-80FE-77EB4A8BDB40},{3C084453-2142-4090-825F-6933FAD183E3},{507CC839-9CAB-4E89-BEA9-2FDD0C656927},{6070D4F8-D063-49D2-AFB1-55306A31D1B2},{0003EB0E-E867-4A53-95DC-09D0C927E417},{DE58EA68-36EA-4D96-AF41-8394A7F26D23},{507CC839-9CAB-4E89-BEA9-2FDD0C656927},{C40BC86E-8631-4848-8664-EF59EF5C9511},{116E6ADA-13A6-4725-B974-E809513EE233},{3A4BF362-96AB-48DE-B770-B5BC584EDE49},{23013471-C07F-429F-A924-1665D8809D9B},{C5E637C6-5AB6-426F-B638-7DC533AE5C75},{116E6ADA-13A6-4725-B974-E809513EE233},{1C2275A8-369E-4351-9468-8046A273B71F},{919EDB7E-78E9-440D-A8D8-49B2FB254D69},{6D6EE834-0773-404A-9C8E-F5C5F4B73406}) DO (MsiExec.exe /X %%g /passive /norestart >>%log%)
+FOR %%g IN ({41feb4a2-7bd2-4d2a-a260-8e8c0e78850c},{af65dc73-94a0-4e85-8ac2-dba52cad1091},{2f4f88fa-c802-4bb6-8e12-9e8313625475},{115EDFAD-1AFB-46A6-9252-43FBB8186D5A},{80EBD79F-5DE4-4189-8E0D-415C750283BE},{1214FA70-2308-4C8A-92B2-D658BA181770},{3EAE8150-DECE-4D3E-A650-2FDEB6AC06A5},{508C3727-3C5E-403D-A69D-FD58A4759FD8},{ABFAAF4C-37B3-45C0-A48F-41560AC61B16},{8842998B-BEE6-4442-9AC7-827BB108C9CE},{1861F90F-7187-469B-BC93-3F947F09E089},{5A0271E2-384E-4386-B14A-09C900D39C9B},{3D7432D9-F9E6-4A94-AF65-079743221EC5},{502C11EE-AC93-47C1-8819-36345B2F1911},{3B037825-A72D-4B41-BA9F-BC8EDC9254FA},{9EF6B750-497B-4586-A7DF-BDE2CBADB900},{3873EBC6-BD2F-4564-A4FE-CD52643B5379},{D97A761B-27EA-4665-94F2-4EFCA4427728},{B1E177D9-E3C9-48E0-9518-EB21FF60297C},{6ACA47BD-D211-45CC-9FF4-70996A7D36E6},{15D99A8D-399F-4647-B2A6-29BE98FCBABA},{F33CCB78-FC9C-482C-8F1F-AF6F8D175337},{F2CED60E-2E22-4880-8D21-3AAE1B0DE6CD},{79CA5983-8BAC-4F17-A8E8-1734B40BC979},{2F055533-E701-4240-80FE-77EB4A8BDB40},{3C084453-2142-4090-825F-6933FAD183E3},{507CC839-9CAB-4E89-BEA9-2FDD0C656927},{6070D4F8-D063-49D2-AFB1-55306A31D1B2},{0003EB0E-E867-4A53-95DC-09D0C927E417},{DE58EA68-36EA-4D96-AF41-8394A7F26D23},{507CC839-9CAB-4E89-BEA9-2FDD0C656927},{C40BC86E-8631-4848-8664-EF59EF5C9511},{116E6ADA-13A6-4725-B974-E809513EE233},{3A4BF362-96AB-48DE-B770-B5BC584EDE49},{23013471-C07F-429F-A924-1665D8809D9B},{C5E637C6-5AB6-426F-B638-7DC533AE5C75},{116E6ADA-13A6-4725-B974-E809513EE233},{1C2275A8-369E-4351-9468-8046A273B71F},{919EDB7E-78E9-440D-A8D8-49B2FB254D69},{6D6EE834-0773-404A-9C8E-F5C5F4B73406}) DO (MsiExec.exe /X %%g /qn /norestart >>%log%)
 reg delete "HKLM\SOFTWARE\Microsoft\Office\Outlook\Addins\Salesforce for Outlook Side Panel" /f >>%log%
 reg delete "HKLM\SOFTWARE\Microsoft\Office\Outlook\Addins\SalesforceForOutlook" /f >>%log%
 
@@ -913,7 +919,7 @@ start "" /b /wait "MsiExec.exe" /X{919EDB7E-78E9-440D-A8D8-49B2FB254D69} /passiv
 ::)
 
 :: Office Live Meeting 2007
-start "" /b /wait "MsiExec.exe" /X{389F8A7A-8611-42E8-8169-20D2BAF0C595} /passive /norestart
+start "" /b /wait "MsiExec.exe" /X{389F8A7A-8611-42E8-8169-20D2BAF0C595} /qn /norestart
 
 :: ------------------
 
@@ -1017,7 +1023,7 @@ if "%wipe-2007%"=="1" (
 
 		:: Wipe Office 2007
 		echo !date! !time!- Wiping Office2007 >>%log%
-			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub07.vbs" %EDITIONS% /OSE /K
+			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub07.vbs" %EDITIONS% /K
 		echo !date! !time!- Wiping Office2007 - Complete !ERRORLEVEL! >>%log%
 	)
 )
@@ -1062,7 +1068,7 @@ if "%wipe-c2r%"=="1" (
 
 		:: Wipe Office C2R
 		echo !date! !time!- Wiping OfficeC2R >>%log%
-			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrubc2r.vbs"
+			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrubc2r.vbs" /Log %LOCALDIR%
 		echo !date! !time!- Wiping OfficeC2R - Complete !ERRORLEVEL! >>%log%
 	)
 	
@@ -1071,6 +1077,23 @@ if "%wipe-c2r%"=="1" (
 :: ------------------
 
 :CONFIG-END
+
+:: ------------------
+
+if "%clear-2007exe%"=="1" (
+	:: Remove abandoned .EXE in root of "Microsoft Office"
+	del "C:\Program Files (x86)\Microsoft Office\*.exe" /f >>%logclean%
+	
+	:: Remove abandoned 2007 shortcuts from user profiles
+	del /q /f /s "C:\Users\*Office Excel 2007.lnk" >>%logclean%
+	del /q /f /s "C:\Users\*Office Outlook 2007.lnk" >>%logclean%
+	del /q /f /s "C:\Users\*Office Word 2007.lnk" >>%logclean%
+
+	:: Remove abandoned 2007 shortcuts from Public profile
+	del /q /f /s "C:\ProgramData\Microsoft\Windows\Start Menu\*Office Excel 2007.lnk" >>%logclean%
+	del /q /f /s "C:\ProgramData\Microsoft\Windows\Start Menu\*Office Outlook 2007.lnk" >>%logclean%
+	del /q /f /s "C:\ProgramData\Microsoft\Windows\Start Menu\*Office Word 2007.lnk" >>%logclean%
+)
 
 :: ------------------
 
@@ -1139,28 +1162,11 @@ if "%install-Office2007%"=="1" (
 				)
 				FOR /F %%G in ('dir /b "%InstallDir%\Packages\Updates-Office2007\*.msp"') do (
 					echo !date! !time!- Installing update: %%G >>%log%
-					start "" /b /wait msiexec /p "%InstallDir%\Packages\Updates-Office2007\%%G" /passive /norestart)
+					start "" /b /wait msiexec /p "%InstallDir%\Packages\Updates-Office2007\%%G" /qn /norestart)
 				)
 			echo !date! !time!- Patching Office2007 - Complete !ERRORLEVEL! >>%log%
 		)
 	)
-)
-
-:: ------------------
-
-if "%clear-2007exe%"=="1" (
-	:: Remove abandoned .EXE in root of "Microsoft Office"
-	del "C:\Program Files (x86)\Microsoft Office\*.exe" /f >>%logclean%
-	
-	:: Remove abandoned 2007 shortcuts from user profiles
-	del /q /f /s "C:\Users\*Office Excel 2007.lnk" >>%logclean%
-	del /q /f /s "C:\Users\*Office Outlook 2007.lnk" >>%logclean%
-	del /q /f /s "C:\Users\*Office Word 2007.lnk" >>%logclean%
-
-	:: Remove abandoned 2007 shortcuts from Public profile
-	del /q /f /s "C:\ProgramData\Microsoft\Windows\Start Menu\*Office Excel 2007.lnk" >>%logclean%
-	del /q /f /s "C:\ProgramData\Microsoft\Windows\Start Menu\*Office Outlook 2007.lnk" >>%logclean%
-	del /q /f /s "C:\ProgramData\Microsoft\Windows\Start Menu\*Office Word 2007.lnk" >>%logclean%
 )
 
 :: ------------------
@@ -1182,7 +1188,7 @@ if "%install-Office2013PP%"=="1" (
 
 	:: Patch Office 2013
 	echo !date! !time!- Patching Office2013 >>%log%
-		FOR /F %%G in ('dir /b "%InstallDir%\Packages\Updates-Office2013\*.msp"') do (start "" /b /wait msiexec /p "%InstallDir%\Packages\Updates-Office2013\%%G" /passive /norestart)
+		FOR /F %%G in ('dir /b "%InstallDir%\Packages\Updates-Office2013\*.msp"') do (start "" /b /wait msiexec /p "%InstallDir%\Packages\Updates-Office2013\%%G" /qn /norestart)
 	echo !date! !time!- Patching Office2013 - Complete !ERRORLEVEL! >>%log%
 )
 
@@ -1210,22 +1216,25 @@ if "%install-SkypeForBusiness2016Basic%"=="1" (
 if "%install-Access2016%"=="1" (
 	echo !date! !time!- Set to install Access 2016 x86 >>%log%
 
+	:: Uninstall Access Runtime 2007
+	msiexec.exe /x {90120000-001C-0409-0000-0000000FF1CE} /qn /norestart
+
 	:: Remove and lock-out Access 2007
 	echo !date! !time!- Locking out Access2007 >>%log%
 	if exist "%InstallDir%\Packages\Access_2016_x86\2007-removeaccess.MSP" (
 		start "" /b /wait "msiexec.exe" /p "%InstallDir%\Packages\Access_2016_x86\2007-removeaccess.MSP" /passive /norestart
 		echo !date! !time!- Locking out Access2007 - Complete !ERRORLEVEL! >>%log%
 	)
-
-	:: Detect if Access 2007 Runtime is installed
+	
+	:: Detect if Access 2007 Runtime is potentially installed
 	if exist "C:\Program Files (x86)\Microsoft Office\Office12\MSACCESS.EXE" (
 
 		:: Wipe Access 2007 Runtime
-		echo !date! !time!- Wiping Office2007Runtime >>%log%
-			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub07.vbs" Access,AccessRuntime,AccessRT /Force
-		echo !date! !time!- Wiping Office2007Runtime - Complete !ERRORLEVEL! >>%log%
+		echo !date! !time!- Wiping Access2007Runtime >>%log%
+			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub07.vbs" Access,AccessRuntime,AccessRT,ACE /SkipShortcutDetection /Log %LOCALDIR%
+		echo !date! !time!- Wiping Access2007Runtime - Complete !ERRORLEVEL! >>%log%
 	)
-	
+
 	:: Uninstall Access database engine 2010
 	msiexec.exe /x {90140000-00D1-0409-0000-0000000FF1CE} /passive /norestart
 
@@ -1233,18 +1242,18 @@ if "%install-Access2016%"=="1" (
 	if exist "C:\Program Files (x86)\Microsoft Office\Office14\MSACCESS.EXE" (
 
 		:: Wipe Access 2010 Runtime
-		echo !date! !time!- Wiping Office2010Runtime >>%log%
-			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub10.vbs" Access,AccessRuntime,AccessRT /Force
-		echo !date! !time!- Wiping Office2010Runtime - Complete !ERRORLEVEL! >>%log%
+		echo !date! !time!- Wiping Access2010Runtime >>%log%
+			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub10.vbs" Access,AccessRuntime,AccessRT,ACE /SkipShortcutDetection /Log %LOCALDIR%
+		echo !date! !time!- Wiping Access2010Runtime - Complete !ERRORLEVEL! >>%log%
 	)
 
 	:: Detect if Access 2013 Runtime is installed
 	if exist "C:\Program Files (x86)\Microsoft Office\Office15\MSACCESS.EXE" (
 
 		:: Wipe Access 2013 Runtime
-		echo !date! !time!- Wiping Office2013Runtime >>%log%
-			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub_O15msi.vbs" Access,AccessRuntime,AccessRT /Force
-		echo !date! !time!- Wiping Office2013Runtime - Complete !ERRORLEVEL! >>%log%
+		echo !date! !time!- Wiping Access2013Runtime >>%log%
+			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub_O15msi.vbs" Access,AccessRuntime,AccessRT,ACE /SkipSD /Log %LOCALDIR%
+		echo !date! !time!- Wiping Access2013Runtime - Complete !ERRORLEVEL! >>%log%
 	)
 
 	:: Detect if Access 2016 Runtime is installed
@@ -1252,7 +1261,7 @@ if "%install-Access2016%"=="1" (
 
 		:: Wipe Access 2016 Runtime
 		echo !date! !time!- Wiping Access2016Runtime >>%log%
-			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub_O16msi.vbs" Access,AccessRuntime,AccessRT /Force
+			start "" /b /wait "cscript.exe" "%LocalDir%\OffScrub_O16msi.vbs" Access,AccessRuntime,AccessRT,ACE /SkipSD /Log %LOCALDIR%
 		echo !date! !time!- Wiping Access2016Runtime - Complete !ERRORLEVEL! >>%log%
 	)
 
@@ -1260,6 +1269,16 @@ if "%install-Access2016%"=="1" (
 	echo !date! !time!- Installing Access 2016 x86 >>%log%
 		start "" /b /wait "%InstallDir%\Packages\Access_2016_x86\setup.exe" /adminfile "%InstallDir%\Packages\Access_2016_x86\2016access.MSP"
 	echo !date! !time!- Installing Access 2016 x86 - Complete !ERRORLEVEL! >>%log%
+
+	:: Make sure ACCDR is mapped correctly and doesn't revert back to Access 2007
+	reg delete "HKCU\Software\Classes\.accdr" /f
+	reg delete "HKCU\Software\Classes\Access.ACCDRFile.12" /f
+	reg delete "HKLM\Software\Classes\Access.ACCDRFile.12" /f
+
+	reg add "HKLM\Software\Classes\.accdr" /ve /d Access.ACCDRFile.16 /t REG_SZ /f
+	reg add "HKLM\Software\Classes\.accdr" /v "Content Type" /d application/msaccess /t REG_SZ /f
+
+	REM HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Access.MDBFile\shell\Open\command
 
 )
 
@@ -1356,18 +1375,24 @@ echo !date! !time!- Installing JunkReporterx86 >>%log%
 
 :: ------------------
 
-:: Patch Office 2016
-echo !date! !time!- Patching Office2016x86 >>%log%
-	FOR /F %%G in ('dir /b "%InstallDir%\Packages\Updates-Office2016\*.msp"') do (
-		echo !date! !time!- Installing update: %%G >>%log%
-		start "" /b /wait msiexec /p "%InstallDir%\Packages\Updates-Office2016\%%G" /passive /norestart
-		echo !date! !time!- Update errorlevel: !ERRORLEVEL! >>%log%
-	)
-	FOR /F %%G in ('dir /b "%InstallDir%\Packages\Updates-Office2016\*.exe"') do (
-		echo !date! !time!- Installing update: %%G >>%log%
-		start "" /b /wait "%InstallDir%\Packages\Updates-Office2016\%%G" /passive /norestart
-	)
-echo !date! !time!- Patching Office2016x86 - Complete >>%log%
+:: Skip patching Office 2016 if option set
+if not "%skip-patch2016%"=="1" (
+	echo !date! !time!- Set to patch Office2007 >>%log%
+	
+	:: Patch Office 2016
+	echo !date! !time!- Patching Office2016x86 >>%log%
+		FOR /F %%G in ('dir /b "%InstallDir%\Packages\Updates-Office2016\*.msp"') do (
+			echo !date! !time!- Installing update: %%G >>%log%
+			start "" /b /wait msiexec /p "%InstallDir%\Packages\Updates-Office2016\%%G" /qn /norestart
+			echo !date! !time!- Update errorlevel: !ERRORLEVEL! >>%log%
+		)
+		FOR /F %%G in ('dir /b "%InstallDir%\Packages\Updates-Office2016\*.exe"') do (
+			echo !date! !time!- Installing update: %%G >>%log%
+			start "" /b /wait "%InstallDir%\Packages\Updates-Office2016\%%G" /passive /norestart
+		)
+		
+	echo !date! !time!- Patching Office2016x86 - Complete >>%log%
+)
 
 :: ------------------
 
