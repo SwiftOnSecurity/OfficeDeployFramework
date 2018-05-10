@@ -88,14 +88,6 @@ echo !date! !time!- LOG START >>%log%
 
 :: Set 32-bit kludge to change 32-bit installs to use 32-bit binaries in some cases
 if not defined ProgramFiles(x86) set "32=32"
-
-:: Check Trend Micro
-if exist "C:\Program Files (x86)\Trend Micro" (
-	echo Uninstall Trend Micro first. Try password 27altmS$.
-	echo Uninstall Trend Micro first. >>%log%
-	pause
-	exit
-	)
 	
 :: ------------------
 
