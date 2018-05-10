@@ -851,7 +851,7 @@ if exist "%windir%\softwaredistribution\download" rmdir /s /q "%windir%\software
 	:: Log
 	echo !date! !time!- Stopping C2R >>%log%
 
-:: Stop Click2Run and DesktopCentral
+:: Stop Click2Run
 sc config ClickToRunSvc start= disabled >>%log%
 net stop ClickToRunSvc >>%log%
 schtasks /change /TN "\Microsoft\Office\Office Automatic Updates" /DISABLE >>%log%
@@ -968,38 +968,6 @@ if not !ERRORLEVEL!==0 (
 	echo !date! !time!- Repairing WMI - Complete >>%log%
 )
 @echo on
-
-:: ------------------
-
-if "%av-stinger%"=="1" (
-	:: McAfee Stinger
-	taskkill /IM "stinger32.exe" /T /F
-	if not exist "util\stinger32.exe" (
-		start "" /b /wait "util\curl.exe" -k -o "util\stinger32.exe" https://downloadcenter.mcafee.com/products/mcafee-avert/stinger/stinger32.exe
-		start "" /b /wait "util\stinger32.exe" --GO --SILENT --PROGRAM --NOSUB --NOUNZIP --REPORTPATH="c:\logs" --DELETE
-	)
-)
-:: ------------------
-
-if "%av-tdsskiller%"=="1" (
-	:: Kaspersky TDSSKiller
-	taskkill /IM "TDSSKiller.exe" /T /F
-	if not exist "TRON\TDSSKiller.exe" (
-		start "" /b /wait "util\curl.exe" -k -o "util\tdsskiller.exe" https://media.kaspersky.com/utilities/VirusUtilities/EN/tdsskiller.exe
-		start "" /b /wait "util\TDSSKiller.exe" -l "%TEMP%\tdsskiller.log" -silent -tdlfs -dcexact -accepteula -accepteulaksn
-	)
-)
-
-:: ------------------
-
-if "%av-kvrt%"=="1" (
-	::Kaspersky KVRT
-	taskkill /IM "KVRT.exe" /T /F
-	if not exist "util\KVRT.exe" (
-		start "" /b /wait "util\curl.exe" -k -o "util\KVRT.exe" https://devbuilds.kaspersky-labs.com/devbuilds/KVRT/latest/full/KVRT.exe
-		start "" /b /wait "util\KVRT.exe" -d "%TEMP%" -accepteula -adinsilent -silent -processlevel 2 -dontcryptsupportinfo
-	)
-)
 
 :: ------------------
 
@@ -1527,7 +1495,6 @@ sc config wuauserv start= delayed-auto
 sc config bits start= delayed-auto
 sc config wsearch start= delayed-auto
 sc config ClickToRunSvc start= delayed-auto
-sc config "ManageEngine Desktop Central - Agent" start= auto
 schtasks /change /TN "\Microsoft\Office\Office Automatic Updates" /ENABLE
 
 :: ------------------
